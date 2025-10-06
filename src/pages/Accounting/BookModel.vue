@@ -151,8 +151,12 @@
                     class="mt-2 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
                   >
                     <option value="" disabled>Select report type</option>
-                    <option v-for="type in reportTypes" :key="type" :value="type">
-                      {{ type }}
+                    <option
+                      v-for="type in reportTypes"
+                      :key="type.code"
+                      :value="type.code"
+                    >
+                      {{ type.code }} - {{ type.description }}
                     </option>
                   </select>
                   <p v-if="errors.reportType" class="mt-1 text-xs text-red-500">{{ errors.reportType }}</p>
@@ -353,7 +357,7 @@
                   :key="model.id"
                   class="hover:bg-[#f4fbfe]"
                 >
-                  <td class="px-5 py-3 text-gray-700">{{ model.reportType }}</td>
+                  <td class="px-5 py-3 text-gray-700">{{ getReportTypeLabel(model.reportType) }}</td>
                   <td class="px-5 py-3 text-gray-700">{{ model.bookModel }}</td>
                   <td class="px-5 py-3 text-gray-700">{{ model.calculation }}</td>
                   <td class="px-5 py-3 text-right">
@@ -386,12 +390,15 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const reportTypes = [
-  'PL',
-  'General Ledger',
-  'Profit and Loss',
-  'Balance Sheet',
-  'Cash Flow Statement',
+  { code: 'DSB', description: 'Dashboard Setting' },
+  { code: 'F1', description: 'Financial Report' },
+  { code: 'G1', description: 'Budgeting Report' },
 ]
+
+const getReportTypeLabel = (code) => {
+  const entry = reportTypes.find((type) => type.code === code)
+  return entry ? `${entry.code} - ${entry.description}` : code
+}
 
 const calculationOptions = ['Periodic', 'Summary']
 
@@ -712,45 +719,45 @@ const seededBookModelDetails = [
 const bookModels = ref([
   {
     id: 1,
-    reportType: 'PL',
+    reportType: 'F1',
     bookModel: 'KELPK',
-    description: 'Pendapatan Sewa',
+    description: 'Financial report - Pendapatan Sewa',
     chartOfAccount: 'Laba Rugi',
     calculation: 'Periodic',
     details: seededBookModelDetails,
   },
   {
     id: 2,
-    reportType: 'General Ledger',
-    bookModel: 'GL Default Model',
-    description: 'Standard GL structure for monthly review.',
-    chartOfAccount: 'COA-1001',
+    reportType: 'DSB',
+    bookModel: 'Dashboard Summary Model',
+    description: 'Dashboard Setting overview for management.',
+    chartOfAccount: 'COA-DSB-01',
     calculation: 'Periodic',
     details: [
       {
         line: '100',
-        account: '1100',
-        description: 'Cash and cash equivalents',
+        account: 'DSB-100',
+        description: 'KPI Snapshot',
         sumLines: '',
         formula: '',
         credit: false,
-        format: 'Currency',
+        format: 'Summary',
         display: 'Detail',
       },
     ],
   },
   {
     id: 3,
-    reportType: 'Profit and Loss',
-    bookModel: 'P&L Consolidated',
-    description: 'Consolidated profit and loss template.',
-    chartOfAccount: 'COA-2400',
+    reportType: 'G1',
+    bookModel: 'Budget Planning Model',
+    description: 'Budgeting report structure for yearly planning.',
+    chartOfAccount: 'COA-G1-01',
     calculation: 'Summary',
     details: [
       {
         line: '200',
-        account: '4100',
-        description: 'Revenue',
+        account: 'G1-200',
+        description: 'Projected Revenue',
         sumLines: '',
         formula: '',
         credit: false,
@@ -759,8 +766,8 @@ const bookModels = ref([
       },
       {
         line: '210',
-        account: '5100',
-        description: 'Cost of Goods Sold',
+        account: 'G1-210',
+        description: 'Projected Expenses',
         sumLines: '',
         formula: '',
         credit: true,
@@ -785,8 +792,9 @@ const filteredBookModels = computed(() => {
   const bookModelFilter = bookModelQuery.value.trim().toLowerCase()
 
   return bookModels.value.filter((item) => {
+    const reportTypeLabel = getReportTypeLabel(item.reportType).toLowerCase()
     const matchesReportType = reportTypeFilter
-      ? item.reportType.toLowerCase().includes(reportTypeFilter)
+      ? reportTypeLabel.includes(reportTypeFilter)
       : true
     const matchesBookModel = bookModelFilter
       ? item.bookModel.toLowerCase().includes(bookModelFilter)
