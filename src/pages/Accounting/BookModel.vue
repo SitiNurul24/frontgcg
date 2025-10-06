@@ -298,19 +298,43 @@
       </transition>
 
       <div class="px-6 py-6">
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-5">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="text-sm text-gray-600">
               Showing {{ filteredBookModels.length }} of {{ bookModels.length }} book models
             </div>
-            <div class="relative w-full max-w-xs">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search book model"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
-              />
-              <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
+          </div>
+
+          <div class="grid w-full gap-4 sm:grid-cols-2 md:max-w-2xl">
+            <div>
+              <label class="text-sm font-semibold text-gray-700" for="filterReportType">
+                Report Type<span class="text-red-500">*</span>
+              </label>
+              <div class="relative mt-2">
+                <input
+                  id="filterReportType"
+                  v-model="reportTypeQuery"
+                  type="text"
+                  placeholder="Search report type"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
+                />
+                <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-700" for="filterBookModel">
+                Book Model<span class="text-red-500">*</span>
+              </label>
+              <div class="relative mt-2">
+                <input
+                  id="filterBookModel"
+                  v-model="bookModelQuery"
+                  type="text"
+                  placeholder="Search book model"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
+                />
+                <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
+              </div>
             </div>
           </div>
 
@@ -447,25 +471,26 @@ const bookModels = ref([
 
 const form = ref(createEmptyForm())
 const errors = ref({})
-const searchQuery = ref('')
+const reportTypeQuery = ref('')
+const bookModelQuery = ref('')
 const showReportTypePanel = ref(false)
 const showForm = ref(false)
 const isEditing = ref(false)
 const copyFromOpen = ref(false)
 
 const filteredBookModels = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-
-  if (!query) {
-    return bookModels.value
-  }
+  const reportTypeFilter = reportTypeQuery.value.trim().toLowerCase()
+  const bookModelFilter = bookModelQuery.value.trim().toLowerCase()
 
   return bookModels.value.filter((item) => {
-    return (
-      item.reportType.toLowerCase().includes(query) ||
-      item.bookModel.toLowerCase().includes(query) ||
-      (item.calculation || '').toLowerCase().includes(query)
-    )
+    const matchesReportType = reportTypeFilter
+      ? item.reportType.toLowerCase().includes(reportTypeFilter)
+      : true
+    const matchesBookModel = bookModelFilter
+      ? item.bookModel.toLowerCase().includes(bookModelFilter)
+      : true
+
+    return matchesReportType && matchesBookModel
   })
 })
 
