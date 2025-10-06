@@ -304,78 +304,139 @@
         <div class="flex flex-col gap-5">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="text-sm text-gray-600">
-              Showing {{ filteredBookModels.length }} of {{ bookModels.length }} book models
+              <template v-if="selectedReportType">
+                Showing {{ filteredBookModels.length }} of {{ totalBookModelsForSelectedType }} book models for
+                <span class="font-semibold text-gray-700">{{ selectedReportTypeLabel }}</span>
+              </template>
+              <template v-else>
+                No report type selected. Choose a report type to view available book models.
+              </template>
             </div>
           </div>
 
-          <div class="grid w-full gap-4 sm:grid-cols-2 md:max-w-2xl">
-            <div>
-              <label class="text-sm font-semibold text-gray-700" for="filterReportType">
-                Report Type<span class="text-red-500">*</span>
-              </label>
-              <div class="relative mt-2">
-                <input
-                  id="filterReportType"
-                  v-model="reportTypeQuery"
-                  type="text"
-                  placeholder="Search report type"
-                  class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
-                />
-                <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
+          <div class="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
+            <div class="flex flex-col gap-4">
+              <div>
+                <label class="text-sm font-semibold text-gray-700" for="filterReportType">
+                  Report Type<span class="text-red-500">*</span>
+                </label>
+                <div class="relative mt-2">
+                  <input
+                    id="filterReportType"
+                    v-model="reportTypeQuery"
+                    type="text"
+                    placeholder="Search report type"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
+                  />
+                  <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
+                </div>
               </div>
-            </div>
-            <div>
-              <label class="text-sm font-semibold text-gray-700" for="filterBookModel">
-                Book Model<span class="text-red-500">*</span>
-              </label>
-              <div class="relative mt-2">
-                <input
-                  id="filterBookModel"
-                  v-model="bookModelQuery"
-                  type="text"
-                  placeholder="Search book model"
-                  class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
-                />
-                <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
-              </div>
-            </div>
-          </div>
 
-          <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-              <thead class="bg-[#02A2DC] text-left text-xs font-semibold uppercase tracking-wider text-white">
-                <tr>
-                  <th class="px-5 py-3">Report Type</th>
-                  <th class="px-5 py-3">Book Model</th>
-                  <th class="px-5 py-3">Calculation</th>
-                  <th class="px-5 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-100 bg-white">
-                <tr
-                  v-for="model in filteredBookModels"
-                  :key="model.id"
-                  class="hover:bg-[#f4fbfe]"
-                >
-                  <td class="px-5 py-3 text-gray-700">{{ getReportTypeLabel(model.reportType) }}</td>
-                  <td class="px-5 py-3 text-gray-700">{{ model.bookModel }}</td>
-                  <td class="px-5 py-3 text-gray-700">{{ model.calculation }}</td>
-                  <td class="px-5 py-3 text-right">
-                    <button
-                      class="rounded-full border border-[#02A2DC] px-3 py-1 text-xs font-semibold text-[#02A2DC] hover:bg-[#e6f7ff] transition"
-                      @click="selectModel(model)"
+              <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead class="bg-[#02A2DC] text-left text-xs font-semibold uppercase tracking-wider text-white">
+                    <tr>
+                      <th class="px-5 py-3">Code</th>
+                      <th class="px-5 py-3">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100 bg-white">
+                    <tr
+                      v-for="type in filteredReportTypes"
+                      :key="type.code"
+                      @click="selectReportTypeRow(type.code)"
+                      class="cursor-pointer transition-colors"
+                      :class="selectedReportType === type.code ? 'bg-[#e6f7fb]' : 'hover:bg-[#f4fbfe]'"
                     >
-                      View
-                    </button>
-                  </td>
-                </tr>
-                <tr v-if="filteredBookModels.length === 0">
-                  <td class="px-5 py-6 text-center text-sm text-gray-500" colspan="4">
-                    No book models available. Create a new model to get started.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      <td class="px-5 py-3 font-semibold text-gray-700">{{ type.code }}</td>
+                      <td class="px-5 py-3 text-gray-600">{{ type.description }}</td>
+                    </tr>
+                    <tr v-if="filteredReportTypes.length === 0">
+                      <td class="px-5 py-6 text-center text-sm text-gray-500" colspan="2">
+                        No report types found.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h4 class="text-base font-semibold text-gray-700">Book Models</h4>
+                  <p class="text-sm text-gray-500">
+                    <template v-if="selectedReportType">
+                      Displaying models linked to {{ selectedReportTypeLabel }}.
+                    </template>
+                    <template v-else>
+                      Select a report type to view its available book models.
+                    </template>
+                  </p>
+                </div>
+                <div class="w-full sm:w-64">
+                  <label class="text-sm font-semibold text-gray-700" for="filterBookModel">
+                    Search
+                  </label>
+                  <div class="relative mt-2">
+                    <input
+                      id="filterBookModel"
+                      v-model="bookModelSearch"
+                      type="text"
+                      :disabled="!selectedReportType"
+                      placeholder="Search book model"
+                      class="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-[#02A2DC] focus:outline-none focus:ring-1 focus:ring-[#02A2DC]"
+                      :class="!selectedReportType ? 'bg-gray-100 cursor-not-allowed focus:border-gray-200 focus:ring-0' : 'bg-white'"
+                    />
+                    <span class="material-icons pointer-events-none absolute right-3 top-2.5 text-gray-400">search</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead class="bg-[#02A2DC] text-left text-xs font-semibold uppercase tracking-wider text-white">
+                    <tr>
+                      <th class="px-5 py-3">Code</th>
+                      <th class="px-5 py-3">Name</th>
+                      <th class="px-5 py-3">Calculation</th>
+                      <th class="px-5 py-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100 bg-white">
+                    <template v-if="selectedReportType">
+                      <tr
+                        v-for="model in filteredBookModels"
+                        :key="model.id"
+                        class="hover:bg-[#f4fbfe]"
+                      >
+                        <td class="px-5 py-3 font-semibold text-gray-700">{{ model.bookModel }}</td>
+                        <td class="px-5 py-3 text-gray-600">{{ model.chartOfAccount || model.description }}</td>
+                        <td class="px-5 py-3 text-gray-600">{{ model.calculation }}</td>
+                        <td class="px-5 py-3 text-right">
+                          <button
+                            class="rounded-full border border-[#02A2DC] px-3 py-1 text-xs font-semibold text-[#02A2DC] hover:bg-[#e6f7ff] transition"
+                            @click="selectModel(model)"
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <tr v-if="filteredBookModels.length === 0">
+                        <td class="px-5 py-6 text-center text-sm text-gray-500" colspan="4">
+                          No book models available for this report type.
+                        </td>
+                      </tr>
+                    </template>
+                    <tr v-else>
+                      <td class="px-5 py-6 text-center text-sm text-gray-500" colspan="4">
+                        Select a report type to display its book models.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -384,7 +445,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -720,7 +781,7 @@ const bookModels = ref([
   {
     id: 1,
     reportType: 'F1',
-    bookModel: 'KELPK',
+    bookModel: 'KEUPL',
     description: 'Financial report - Pendapatan Sewa',
     chartOfAccount: 'Laba Rugi',
     calculation: 'Periodic',
@@ -776,33 +837,141 @@ const bookModels = ref([
       },
     ],
   },
+  {
+    id: 4,
+    reportType: 'F1',
+    bookModel: 'CONSOL',
+    description: 'Consolidated balance sheet view.',
+    chartOfAccount: 'Neraca',
+    calculation: 'Summary',
+    details: [createDetailRow()],
+  },
+  {
+    id: 5,
+    reportType: 'F1',
+    bookModel: 'KEUNG',
+    description: 'Standalone balance sheet for KEUNG.',
+    chartOfAccount: 'Neraca',
+    calculation: 'Periodic',
+    details: [createDetailRow()],
+  },
+  {
+    id: 6,
+    reportType: 'F1',
+    bookModel: 'KONSOLID1',
+    description: 'Neraca Tes Untuk KOPERASI KITA 2',
+    chartOfAccount: 'Neraca Tes Untuk KOPERASI KITA 2',
+    calculation: 'Periodic',
+    details: [createDetailRow()],
+  },
+  {
+    id: 7,
+    reportType: 'F1',
+    bookModel: 'KONSOLID2',
+    description: 'Neraca Tes Untuk KOPERASI KITA 3',
+    chartOfAccount: 'Neraca Tes Untuk KOPERASI KITA 3',
+    calculation: 'Periodic',
+    details: [createDetailRow()],
+  },
+  {
+    id: 8,
+    reportType: 'F1',
+    bookModel: 'PRMNC',
+    description: 'Neraca PRM',
+    chartOfAccount: 'Neraca PRM',
+    calculation: 'Summary',
+    details: [createDetailRow()],
+  },
+  {
+    id: 9,
+    reportType: 'F1',
+    bookModel: 'PRMPL',
+    description: 'Laba Rugi PRM',
+    chartOfAccount: 'Laba Rugi',
+    calculation: 'Periodic',
+    details: [createDetailRow()],
+  },
 ])
 
 const form = ref(createEmptyForm())
 const errors = ref({})
 const reportTypeQuery = ref('')
-const bookModelQuery = ref('')
+const bookModelSearch = ref('')
 const showReportTypePanel = ref(false)
 const showForm = ref(false)
 const isEditing = ref(false)
 const copyFromOpen = ref(false)
+const defaultReportType = reportTypes.find((type) => type.code === 'F1')
+const selectedReportType = ref(defaultReportType?.code ?? reportTypes[0]?.code ?? '')
 
-const filteredBookModels = computed(() => {
-  const reportTypeFilter = reportTypeQuery.value.trim().toLowerCase()
-  const bookModelFilter = bookModelQuery.value.trim().toLowerCase()
+const filteredReportTypes = computed(() => {
+  const keyword = reportTypeQuery.value.trim().toLowerCase()
+  if (!keyword) return reportTypes
 
-  return bookModels.value.filter((item) => {
-    const reportTypeLabel = getReportTypeLabel(item.reportType).toLowerCase()
-    const matchesReportType = reportTypeFilter
-      ? reportTypeLabel.includes(reportTypeFilter)
-      : true
-    const matchesBookModel = bookModelFilter
-      ? item.bookModel.toLowerCase().includes(bookModelFilter)
-      : true
-
-    return matchesReportType && matchesBookModel
+  return reportTypes.filter((type) => {
+    const searchable = `${type.code} ${type.description}`.toLowerCase()
+    return searchable.includes(keyword)
   })
 })
+
+const selectedReportTypeLabel = computed(() =>
+  selectedReportType.value ? getReportTypeLabel(selectedReportType.value) : ''
+)
+
+const totalBookModelsForSelectedType = computed(() => {
+  if (!selectedReportType.value) return 0
+
+  return bookModels.value.filter(
+    (item) => item.reportType === selectedReportType.value
+  ).length
+})
+
+const filteredBookModels = computed(() => {
+  const keyword = bookModelSearch.value.trim().toLowerCase()
+
+  if (!selectedReportType.value) {
+    return []
+  }
+
+  return bookModels.value.filter((item) => {
+    if (item.reportType !== selectedReportType.value) {
+      return false
+    }
+
+    if (!keyword) return true
+
+    const searchable = [
+      item.bookModel,
+      item.chartOfAccount,
+      item.description,
+      item.calculation,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    return searchable.includes(keyword)
+  })
+})
+
+watch(filteredReportTypes, (next) => {
+  if (next.length === 0) {
+    selectedReportType.value = ''
+    return
+  }
+
+  if (!next.some((type) => type.code === selectedReportType.value)) {
+    selectedReportType.value = next[0].code
+  }
+})
+
+watch(selectedReportType, () => {
+  bookModelSearch.value = ''
+})
+
+const selectReportTypeRow = (code) => {
+  selectedReportType.value = code
+}
 
 const resetFormState = () => {
   form.value = createEmptyForm()
