@@ -499,6 +499,7 @@ const MOBILE_BREAKPOINT = 1024
 // Accounting submenu items
 const accountingItems = [
   { path: '/accounting/journal-entry', name: 'Journal Entry' },
+  { path: '/accounting/book-model', name: 'Book Model' },
   { path: '/accounting/fixed-asset', name: 'Fixed Asset' },
   { path: '/accounting/payable', name: 'Payable' },
   { path: '/accounting/receivable', name: 'Receivable' },

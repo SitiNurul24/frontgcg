@@ -10,11 +10,13 @@ import JournalView from '@/pages/Accounting/JournalView.vue'
 import PayableView from '@/pages/Accounting/PayableView.vue'
 import ReceivableView from '@/pages/Accounting/ReceivableView.vue'
 import FixedAsset from '@/pages/Accounting/FixedAsset.vue'
+import BookModel from '@/pages/Accounting/BookModel.vue'
 
 const adminRoutes = [
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/accounting', component: Accounting, meta: { requiresAuth: true } },
   { path: '/accounting/journal-entry', component: JournalView, meta: { requiresAuth: true } },
+  { path: '/accounting/book-model', component: BookModel, meta: { requiresAuth: true } },
   { path: '/accounting/payable', component: PayableView, meta: { requiresAuth: true } },
   { path: '/accounting/receivable', component: ReceivableView, meta: { requiresAuth: true } },
   { path: '/accounting/fixed-asset', component: FixedAsset, meta: { requiresAuth: true } },
