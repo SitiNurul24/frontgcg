@@ -545,7 +545,8 @@
 // Impor komponen Header saja, sidebar sudah built-in
 import Header from './components/Header.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
+import { settingsSections } from './constants/settingsSections'
 
 const router = useRouter()
 const route = useRoute()
@@ -579,16 +580,10 @@ const accountingItems = [
   { path: '/accounting/receivable', name: 'Receivable' },
 ]
 
-// Settings submenu items
-const settingsItems = [
-  { path: '/settings/currency', name: 'Currency' },
-  { path: '/settings/company', name: 'Company' },
-  { path: '/settings/document', name: 'Document' },
-  { path: '/settings/notification', name: 'Notification' },
-  { path: '/settings/language', name: 'Language' },
-  { path: '/settings/reference', name: 'Reference' },
-  { path: '/settings/currency-rate', name: 'Currency Rate' },
-]
+// Settings submenu items (shared with Settings pages)
+const settingsItems = computed(() =>
+  settingsSections.map((section) => ({ path: section.path, name: section.label })),
+)
 
 // Membership submenu items
 const membershipItems = [

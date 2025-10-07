@@ -411,19 +411,12 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { settingsSections } from '@/constants/settingsSections'
 
 const router = useRouter()
 const route = useRoute()
 
-const sectionList = [
-  { id: 'currency', label: 'Currency' },
-  { id: 'company', label: 'Company' },
-  { id: 'document', label: 'Document' },
-  { id: 'notification', label: 'Notification' },
-  { id: 'language', label: 'Language' },
-  { id: 'reference', label: 'Reference' },
-  { id: 'currency-rate', label: 'Currency Rate' },
-]
+const sectionList = settingsSections
 
 const validSections = computed(() => sectionList.map((section) => section.id))
 
