@@ -168,6 +168,76 @@
               </div>
             </li>
 
+            <!-- Settings with Submenu -->
+            <li>
+              <div>
+                <!-- Main Menu Button -->
+                <button
+                  @click="toggleSettings"
+                  class="w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                  :class="
+                    isActiveRoute('/settings')
+                      ? 'bg-[#02A2DC] text-white shadow-md'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-[#02A2DC]'
+                  "
+                >
+                  <span
+                    class="material-icons mr-3 text-xl transition-colors"
+                    :class="
+                      isActiveRoute('/settings')
+                        ? 'text-white'
+                        : 'text-gray-400 group-hover:text-[#02A2DC]'
+                    "
+                  >
+                    settings
+                  </span>
+                  <span class="font-medium text-sm lg:text-base flex-1 text-left">Settings</span>
+                  <span
+                    class="material-icons text-lg transition-transform duration-200"
+                    :class="[
+                      isSettingsOpen ? 'rotate-180' : 'rotate-0',
+                      isActiveRoute('/settings')
+                        ? 'text-white'
+                        : 'text-gray-400 group-hover:text-[#02A2DC]',
+                    ]"
+                  >
+                    expand_more
+                  </span>
+                </button>
+
+                <!-- Submenu -->
+                <div
+                  class="overflow-hidden transition-all duration-300 ease-in-out"
+                  :class="isSettingsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
+                >
+                  <ul class="mt-2 ml-4 space-y-1 border-l-2 border-gray-100 pl-4">
+                    <li v-for="item in settingsItems" :key="item.path">
+                      <router-link
+                        :to="item.path"
+                        class="flex items-center px-3 py-2 rounded-lg text-sm transition-all duration-200 group"
+                        :class="
+                          $route.path === item.path
+                            ? 'text-[#02A2DC] font-semibold bg-blue-50'
+                            : 'text-gray-600 hover:text-[#02A2DC] hover:bg-gray-50'
+                        "
+                        @click="closeSidebarOnMobile"
+                      >
+                        <span
+                          class="w-2 h-2 rounded-full mr-3 transition-colors flex-shrink-0"
+                          :class="
+                            $route.path === item.path
+                              ? 'bg-[#02A2DC]'
+                              : 'bg-gray-300 group-hover:bg-[#02A2DC]'
+                          "
+                        ></span>
+                        <span class="truncate">{{ item.name }}</span>
+                      </router-link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </li>
+
             <!-- Membership with Submenu -->
             <li>
               <div>
@@ -475,7 +545,8 @@
 // Impor komponen Header saja, sidebar sudah built-in
 import Header from './components/Header.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
+import { settingsSections } from './constants/settingsSections'
 
 const router = useRouter()
 const route = useRoute()
@@ -487,9 +558,14 @@ const isMobileSearchOpen = ref(false)
 const mobileSearchInput = ref(null)
 const isMembershipOpen = ref(false)
 const isAccountingOpen = ref(false)
+const isSettingsOpen = ref(false)
 
 const toggleAccounting = () => {
   isAccountingOpen.value = !isAccountingOpen.value
+}
+
+const toggleSettings = () => {
+  isSettingsOpen.value = !isSettingsOpen.value
 }
 
 // Mobile detection
@@ -503,6 +579,11 @@ const accountingItems = [
   { path: '/accounting/payable', name: 'Payable' },
   { path: '/accounting/receivable', name: 'Receivable' },
 ]
+
+// Settings submenu items (shared with Settings pages)
+const settingsItems = computed(() =>
+  settingsSections.map((section) => ({ path: section.path, name: section.label })),
+)
 
 // Membership submenu items
 const membershipItems = [
@@ -556,7 +637,7 @@ const showNotifications = () => {
 }
 
 const showSettings = () => {
-  console.log('Settings clicked!')
+  router.push('/settings/currency')
 }
 
 const logout = () => {
@@ -637,12 +718,18 @@ const focusMobileSearch = () => {
 // Watchers
 watch(isMobileSearchOpen, focusMobileSearch)
 
-// Auto-open membership submenu if on membership route
+// Auto-open submenus based on current route
 watch(
   () => route.path,
   (newPath) => {
     if (newPath.startsWith('/membership')) {
       isMembershipOpen.value = true
+    }
+    if (newPath.startsWith('/accounting')) {
+      isAccountingOpen.value = true
+    }
+    if (newPath.startsWith('/settings')) {
+      isSettingsOpen.value = true
     }
   },
   { immediate: true },
@@ -654,9 +741,15 @@ onMounted(() => {
   document.addEventListener('keydown', handleEscapeKey)
   window.addEventListener('resize', handleResize)
 
-  // Auto-open membership submenu if on membership route
+  // Auto-open submenus when directly accessing routes
   if (route.path.startsWith('/membership')) {
     isMembershipOpen.value = true
+  }
+  if (route.path.startsWith('/accounting')) {
+    isAccountingOpen.value = true
+  }
+  if (route.path.startsWith('/settings')) {
+    isSettingsOpen.value = true
   }
 })
 

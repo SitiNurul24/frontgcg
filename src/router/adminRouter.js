@@ -10,6 +10,7 @@ import JournalView from '@/pages/Accounting/JournalView.vue'
 import PayableView from '@/pages/Accounting/PayableView.vue'
 import ReceivableView from '@/pages/Accounting/ReceivableView.vue'
 import FixedAsset from '@/pages/Accounting/FixedAsset.vue'
+import GeneralSettings from '@/pages/Settings/GeneralSettings.vue'
 
 const adminRoutes = [
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
@@ -18,6 +19,12 @@ const adminRoutes = [
   { path: '/accounting/payable', component: PayableView, meta: { requiresAuth: true } },
   { path: '/accounting/receivable', component: ReceivableView, meta: { requiresAuth: true } },
   { path: '/accounting/fixed-asset', component: FixedAsset, meta: { requiresAuth: true } },
+  { path: '/settings', redirect: '/settings/currency' },
+  {
+    path: '/settings/:section',
+    component: GeneralSettings,
+    meta: { requiresAuth: true },
+  },
   { path: '/membership', component: Membership, meta: { requiresAuth: true } },
   //{ path: '/', redirect: '/login' },
   { path: '/membership', component: Membership, meta: { requiresAuth: true } },
